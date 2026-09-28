@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Affiliate Creator Tool</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!--=========================
+       LOGIN SCREEN
+=========================-->   
+<div id="authScreen" class="auth-screen">
+
+    <div class="auth-box">
+
+            <h1>Affiliate Creator Tool</h1>
+
+            <p class="auth-subtitle">
+                Personal Content & Hook Manager
+            </p>
+
+            <div class="auth-tabs">
+
+        <button
+             id="loginTab" 
+             class="auth-tab active">
+             Login
+        </button>
+
+        <button
+             id="registerTab"
+             class="auth-tab">
+             Daftar
+        </button>
+
+        </div>
+
+        <form id="authForm">
+
+            <label>Email</label>
+
+            <input
+                 type="email"
+                 id="authEmail"
+                 placeholder="nama@email.com"
+                 required
+                 
+                 >
+
+             <label>Password</label> 
+             
+             <input
+                 type="password"
+                 id="authPassword"
+                 placeholder="Minimal 6 karakter"
+                 required
+                 >
+
+                 <button
+                      type="submit"
+                      id="authSubmit"
+                      class="primary-btn full">
+                        Login
+                       </button>
+
+        </form>
+
+        <p 
+            id="authMessage"
+            class="auth-message"
+            ></p>
+
+     </div>
+
+</div>
+
+<!--=========================
+      DASHBOARD
+========================-->
+
+<header class="topbar"></header>
+         
+    <main>
+
+        <!-- STATISTIK -->
+
+        <section class="stats">
+
+            <div class="stat-card">
+                <span>Total Konten</span>
+                <strong id="totalContent">0</strong>
+            </div>
+
+            <div class="stat-card">
+                <span>Total Hook</span>
+                <strong id="totalHooks">0</strong>
+            </div>
+
+            <div class="stat-card">
+                <span>Sudah Posting</span>
+                <strong id="postedContent">0</strong>
+            </div>
+
+        </section>
+
+
+        <!-- NAVIGASI -->
+
+        <nav class="tabs">
+
+            <button class="tab active" data-tab="dashboard">
+                Dashboard
+            </button>
+
+            <button class="tab" data-tab="content">
+                Content Bank
+            </button>
+
+            <button class="tab" data-tab="hooks">
+                Hook Bank
+            </button>
+
+        </nav>
+
+
+        <!-- DASHBOARD -->
+
+        <section id="dashboard" class="tab-content active">
+
+            <div class="section-header">
+                <div>
+                    <h2>Konten Terbaru</h2>
+                    <p>Kelola ide dan distribusi kontenmu.</p>
+                </div>
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Cari produk / hook..."
+                >
+            </div>
+
+            <div id="contentList" class="content-grid"></div>
+
+        </section>
+
+
+        <!-- CONTENT BANK -->
+
+        <section id="content" class="tab-content">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>Content Bank</h2>
+                    <p>Semua konten yang sedang atau sudah kamu kerjakan.</p>
+                </div>
+
+                <button id="addContentBtn" class="primary-btn">
+                    + Tambah Konten
+                </button>
+
+            </div>
+
+            <div id="contentList2" class="content-grid"></div>
+
+        </section>
+
+
+        <!-- HOOK BANK -->
+
+        <section id="hooks" class="tab-content">
+
+            <div class="section-header">
+
+                <div>
+                    <h2>Hook Bank</h2>
+                    <p>Simpan semua hook yang pernah kamu buat.</p>
+
+                </div>
+
+                <button id="addHookBtn" class="primary-btn">
+                    + Tambah Hook
+                </button>
+
+            </div>
+
+            <div id="hookList" class="hook-grid"></div>
+
+        </section>
+
+    </main>
+
+
+    <!-- MODAL CONTENT -->
+
+    <div id="contentModal" class="modal">
+
+        <div class="modal-box">
+
+            <div class="modal-header">
+
+                <h2>Tambah Konten</h2>
+
+                <button class="close-btn" data-close="contentModal">
+                    ×
+                </button>
+
+            </div>
+
+
+            <label>Nama Produk</label>
+
+            <input
+                type="text"
+                id="productInput"
+                placeholder="Contoh: Parfum X"
+            >
+
+
+            <label>Hook</label>
+
+            <textarea
+                id="contentHookInput"
+                placeholder="Tulis hook..."
+            ></textarea>
+
+
+            <label>Kategori</label>
+
+            <select id="categoryInput">
+
+                <option value="Curiosity">
+                    Curiosity
+                </option>
+
+                <option value="Problem">
+                    Problem
+                </option>
+
+                <option value="Relatable">
+                    Relatable
+                </option>
+
+                <option value="Product">
+                    Product
+                </option>
+
+                <option value="Funny">
+                    Funny
+                </option>
+
+                <option value="Other">
+                    Other
+                </option>
+
+            </select>
+
+
+            <h3>Posting ke</h3>
+
+            <div class="platforms">
+
+                <label>
+                    <input type="checkbox" value="TikTok @dhny.co_" class="platform">
+                    TikTok @dhny.co_
+                </label>
+
+                <label>
+                    <input type="checkbox" value="TikTok @dhnystr" class="platform">
+                    TikTok @dhnystr
+                </label>
+
+                <label>
+                    <input type="checkbox" value="TikTok @lokalpride.co" class="platform">
+                    TikTok @lokalpride.co
+                </label>
+
+                <label>
+                    <input type="checkbox" value="Instagram Reels @dhny______" class="platform">
+                    Instagram Reels @dhny______
+                </label>
+                
+                <label>
+                    <input type="checkbox" value="Instagram @lokalpride.outfit" class="platform">
+                    Instagram @lokalpride.outfit
+                </label>
+
+                <label>
+                    <input type="checkbox" value="Shopee Video" class="platform">
+                    Shopee Video
+                </label>
+
+            </div>
+
+
+            <button id="saveContentBtn" class="primary-btn full">
+                Simpan Konten
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- MODAL HOOK -->
+
+    <div id="hookModal" class="modal">
+
+        <div class="modal-box">
+
+            <div class="modal-header">
+
+                <h2>Tambah Hook</h2>
+
+                <button class="close-btn" data-close="hookModal">
+                    ×
+                </button>
+
+            </div>
+
+
+            <label>Hook</label>
+
+            <textarea
+                id="hookInput"
+                placeholder="Contoh: Gue kira parfum ini bakal biasa aja..."
+            ></textarea>
+
+
+            <label>Kategori</label>
+
+            <select id="hookCategoryInput">
+
+                <option value="Curiosity">
+                    Curiosity
+                </option>
+
+                <option value="Problem">
+                    Problem
+                </option>
+
+                <option value="Relatable">
+                    Relatable
+                </option>
+
+                <option value="Funny">
+                    Funny
+                </option>
+
+                <option value="Product">
+                    Product
+                </option>
+
+            </select>
+
+
+            <button id="saveHookBtn" class="primary-btn full">
+                Simpan Hook
+            </button>
+
+        </div>
+
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>
