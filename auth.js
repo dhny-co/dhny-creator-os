@@ -229,7 +229,7 @@ async function checkAuth() {
 // AUTH STATE
 // ========================================
 
-supabaseClient.auth.onAuthStateChange(
+supabase.auth.onAuthStateChange(
     (event, session) => {
 
         if (session) {
