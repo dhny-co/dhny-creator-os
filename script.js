@@ -39,21 +39,23 @@ const postedContent = document.getElementById("postedContent");
 
 async function saveData() {
     // Ambil data user yang sedang login saat ini
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: userData, error: userError } = await supabase.auth.getUser();
     
-    if (!user) {
-        console.error("User belum login!");
+    if (userError || !userData.user) {
+        console.error("User belum login:", userError);
         return;
     }
+
+    const userId = userData.user.id;
 
     // 1. Simpan/Sinkronkan data contents ke Supabase
     // (Asumsinya 'contents' adalah array objek yang berisi data, misal: { content_text: "..." })
     if (contents && contents.length > 0) {
         for (let item of contents) {
-            // Cek apakah item sudah punya id atau belum, kalau belum kita insert baru
+            // Pastikan menyertakan user_id dan unique constraint (misal id jika ada)
             await supabase.from("contents").upsert({
-                user_id: user.id,
-                content_text: item.text || item.content_text || JSON.stringify(item)
+                user_id: userId,
+                content_text: item.text || item // sesuaikan dengan struktur datamu
             });
         }
     }
@@ -62,8 +64,8 @@ async function saveData() {
     if (hooks && hooks.length > 0) {
         for (let item of hooks) {
             await supabase.from("hooks").upsert({
-                user_id: user.id,
-                hook_text: item.text || item.hook_text || JSON.stringify(item)
+                user_id: userId,
+                hook_text: item.text || item // sesuaikan dengan struktur datamu
             });
         }
     }
