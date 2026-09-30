@@ -200,7 +200,7 @@ function showLogin() {
 async function checkAuth() {
 
     const { data, error } =
-        await supabaseClient.auth.getSession();
+        await supabase.auth.getSession();
 
     if (error) {
 
