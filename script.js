@@ -896,7 +896,7 @@ async function loadData() {
         .select('*')
         .eq('user_id', userId);
 
-    if (!contentsError && contentsData) {
+    if (!contentsError && Array.isArray(contentsData) && contentsData.length > 0) {
         contents = contentsData;
         localStorage.setItem('affiliateContents', JSON.stringify(contents));
     }
@@ -907,7 +907,7 @@ async function loadData() {
         .select('*')
         .eq('user_id', userId);
 
-    if (!hooksError && hooksData) {
+    if (!hooksError && Array.isArray(hooksData) && hooksData.length > 0) {
         hooks = hooksData;
         localStorage.setItem('affiliateHooks', JSON.stringify(hooks));
     }
@@ -920,7 +920,7 @@ async function loadData() {
 // ==========================================
 async function initApp() {
     await loadData();
-    renderAll();
+    if (typeof renderAll === 'function') {
+}
 }
 initApp();
-
