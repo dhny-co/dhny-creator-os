@@ -37,18 +37,40 @@ const postedContent = document.getElementById("postedContent");
 // SAVE DATA
 // ========================================
 
-function saveData() {
+async function saveData() {
+    // Ambil data user yang sedang login saat ini
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+        console.error("User belum login!");
+        return;
+    }
 
-    localStorage.setItem(
-        "affiliateContents",
-        JSON.stringify(contents)
-    );
+    // 1. Simpan/Sinkronkan data contents ke Supabase
+    // (Asumsinya 'contents' adalah array objek yang berisi data, misal: { content_text: "..." })
+    if (contents && contents.length > 0) {
+        for (let item of contents) {
+            // Cek apakah item sudah punya id atau belum, kalau belum kita insert baru
+            await supabase.from("contents").upsert({
+                user_id: user.id,
+                content_text: item.text || item.content_text || JSON.stringify(item)
+            });
+        }
+    }
 
-    localStorage.setItem(
-        "affiliateHooks",
-        JSON.stringify(hooks)
-    );
+    // 2. Simpan/Sinkronkan data hooks ke Supabase
+    if (hooks && hooks.length > 0) {
+        for (let item of hooks) {
+            await supabase.from("hooks").upsert({
+                user_id: user.id,
+                hook_text: item.text || item.hook_text || JSON.stringify(item)
+            });
+        }
+    }
 
+    // Tetap simpan cadangan lokal juga boleh, biar kalau offline tetap aman
+    localStorage.setItem("affiliateContents", JSON.stringify(contents));
+    localStorage.setItem("affiliateHooks", JSON.stringify(hooks));
 }
 
 
