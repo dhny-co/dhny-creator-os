@@ -8,7 +8,8 @@ const SUPABASE_URL =
 const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_wdSkArJGYB_0CuLoJfN5fw_JgtAfNpp";
 
-const supabaseClient = window.supabase.createClient(
+// Jadikan variabel global agar bisa diakses oleh scrip.js
+supabase = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_PUBLISHABLE_KEY
 );
