@@ -82,7 +82,7 @@ async function loatData() {
     const userId = userData.user.id;
 
 // Ambil data contents dari Supabase
-const {data: contentsData, error: contentsError } = await supabase
+const { data: contentsData, error: contentsError } = await supabase
      .from('contents')
      .select('*')
      .eq('user_id', userId);
@@ -883,12 +883,44 @@ function escapeAttribute(text) {
 
 }
 
+// == LOAD DATA DARI SUPABASE ==
+async function loadData() {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData.user) return;
 
-// ========================================
+    const userId = userData.user.id;
+
+    // Ambil data contents
+    const { data: contentsData, error: contentsError } = await supabase
+        .from('contents')
+        .select('*')
+        .eq('user_id', userId);
+
+    if (!contentsError && contentsData) {
+        contents = contentsData;
+        localStorage.setItem('affiliateContents', JSON.stringify(contents));
+    }
+
+    // Ambil data hooks
+    const { data: hooksData, error: hooksError } = await supabase
+        .from('hooks')
+        .select('*')
+        .eq('user_id', userId);
+
+    if (!hooksError && hooksData) {
+        hooks = hooksData;
+        localStorage.setItem('affiliateHooks', JSON.stringify(hooks));
+    }
+
+    renderAll();
+}
+
+// ==========================================
 // START APP
-// ========================================
+// ==========================================
 async function initApp() {
-   await loadData();
-   renderAll();
+    await loadData();
+    renderAll();
 }
 initApp();
+

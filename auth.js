@@ -114,7 +114,7 @@ authForm.addEventListener("submit", async (event) => {
         if (authMode === "register") {
 
             const { error } =
-                await supabaseClient.auth.signUp({
+                await supabase.auth.signUp({
                     email: email,
                     password: password
                 });
@@ -133,7 +133,7 @@ authForm.addEventListener("submit", async (event) => {
         else {
 
             const { error } =
-                await supabaseClient.auth.signInWithPassword({
+                await supabase.auth.signInWithPassword({
                     email: email,
                     password: password
                 });
