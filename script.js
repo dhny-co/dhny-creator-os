@@ -75,6 +75,35 @@ async function saveData() {
     localStorage.setItem("affiliateHooks", JSON.stringify(hooks));
 }
 
+async function loatData() {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData.user) return;
+
+    const userId = userData.user.id;
+
+// Ambil data contents dari Supabase
+const {data: contentsData, error: contentsError } = await supabase
+     .from('contents')
+     .select('*')
+     .eq('user_id', userId);
+
+     if (!contentsError && contentsData) {
+        contents = contentsData;
+        localStorage.setItem('affiliateContents', JSON.stringify (contents));
+     }
+
+// Ambil data hooks dari Supabase
+const { data: hooksDatam, error: hooksError } = await supabase
+     .from('hooks')
+     .select('*')
+     .eq('user_id', userId);
+
+     if (!hooksError && hooksData) {
+        hooks = hooksData;
+        localStorage.setItem('affiliateHooks', JSON.stringify(hooks));
+     }
+     renderAll();
+}
 
 // ========================================
 // OPEN MODAL
@@ -858,5 +887,8 @@ function escapeAttribute(text) {
 // ========================================
 // START APP
 // ========================================
-
-renderAll();
+async function initApp() {
+   await loadData();
+   renderAll();
+}
+initApp();
