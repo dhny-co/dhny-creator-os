@@ -2,14 +2,20 @@
 // AFFILIATE CREATOR TOOL - AUTH
 // ========================================
 
+
+// ========================================
+// SUPABASE CONFIG
+// ========================================
+
 const SUPABASE_URL =
-    "https://npeutglwjpucwwzjaikn.supabase.co";
+    "https://npeutglwjpuwwzjaikn.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_wdSkArJGYB_0CuLoJfN5fw_JgtAfNpp";
 
-// Jadikan variabel global agar bisa diakses oleh scrip.js
-supabase = window.supabase.createClient(
+
+// Supabase client
+const supabase = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_PUBLISHABLE_KEY
 );
@@ -61,6 +67,11 @@ loginTab.addEventListener("click", () => {
 
     authSubmit.textContent = "Login";
 
+    authPassword.setAttribute(
+        "autocomplete",
+        "current-password"
+    );
+
     authMessage.textContent = "";
 
 });
@@ -80,6 +91,11 @@ registerTab.addEventListener("click", () => {
 
     authSubmit.textContent = "Daftar";
 
+    authPassword.setAttribute(
+        "autocomplete",
+        "new-password"
+    );
+
     authMessage.textContent = "";
 
 });
@@ -89,86 +105,114 @@ registerTab.addEventListener("click", () => {
 // LOGIN / REGISTER
 // ========================================
 
-authForm.addEventListener("submit", async (event) => {
+authForm.addEventListener(
+    "submit",
+    async (event) => {
 
-    event.preventDefault();
+        event.preventDefault();
 
-    const email =
-        authEmail.value.trim();
+        const email =
+            authEmail.value.trim();
 
-    const password =
-        authPassword.value;
-
-
-    authSubmit.disabled = true;
-
-    authSubmit.textContent = "Memproses...";
-
-    authMessage.textContent = "";
+        const password =
+            authPassword.value;
 
 
-    try {
+        authSubmit.disabled = true;
 
-        // REGISTER
+        authSubmit.textContent =
+            "Memproses...";
 
-        if (authMode === "register") {
+        authMessage.textContent = "";
 
-            const { error } =
-                await supabase.auth.signUp({
-                    email: email,
-                    password: password
-                });
 
-            if (error) {
-                throw error;
+        try {
+
+            // =========================
+            // REGISTER
+            // =========================
+
+            if (authMode === "register") {
+
+                const {
+                    data,
+                    error
+                } =
+                    await supabase.auth.signUp({
+                        email,
+                        password
+                    });
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                if (data.session) {
+
+                    showApp();
+
+                } else {
+
+                    authMessage.textContent =
+                        "Akun berhasil dibuat. Silakan cek email untuk verifikasi.";
+
+                }
+
+
+                return;
             }
 
-            authMessage.textContent =
-                "Akun berhasil dibuat. Silakan cek email untuk verifikasi.";
 
-        }
-
-        // LOGIN
-
-        else {
+            // =========================
+            // LOGIN
+            // =========================
 
             const { error } =
                 await supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password
+                    email,
+                    password
                 });
+
 
             if (error) {
                 throw error;
             }
+
 
             showApp();
 
         }
 
+
+        catch (error) {
+
+            console.error(
+                "Auth error:",
+                error
+            );
+
+            authMessage.textContent =
+                error?.message ||
+                "Terjadi kesalahan. Coba lagi.";
+
+        }
+
+
+        finally {
+
+            authSubmit.disabled = false;
+
+            authSubmit.textContent =
+                authMode === "login"
+                    ? "Login"
+                    : "Daftar";
+
+        }
+
     }
-
-    catch (error) {
-
-        console.error(error);
-
-        authMessage.textContent =
-            error.message;
-
-    }
-
-    finally {
-
-        authSubmit.disabled = false;
-
-        authSubmit.textContent =
-            authMode === "login"
-                ? "Login"
-                : "Daftar";
-
-    }
-
-});
+);
 
 
 // ========================================
@@ -199,24 +243,38 @@ function showLogin() {
 
 async function checkAuth() {
 
-    const { data, error } =
-        await supabase.auth.getSession();
+    try {
 
-    if (error) {
+        const {
+            data,
+            error
+        } =
+            await supabase.auth.getSession();
 
-        console.error(error);
 
-        return;
+        if (error) {
+            throw error;
+        }
+
+
+        if (data.session) {
+
+            showApp();
+
+        } else {
+
+            showLogin();
+
+        }
 
     }
 
-    if (data.session) {
+    catch (error) {
 
-        showApp();
-
-    }
-
-    else {
+        console.error(
+            "Session error:",
+            error
+        );
 
         showLogin();
 
@@ -236,9 +294,7 @@ supabase.auth.onAuthStateChange(
 
             showApp();
 
-        }
-
-        else {
+        } else {
 
             showLogin();
 
@@ -249,7 +305,7 @@ supabase.auth.onAuthStateChange(
 
 
 // ========================================
-// START
+// START AUTH
 // ========================================
 
 checkAuth();

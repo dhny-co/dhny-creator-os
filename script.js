@@ -8,154 +8,145 @@
 // DATA
 // ========================================
 
-let contents = JSON.parse(
-    localStorage.getItem("affiliateContents")
-) || [];
+let contents =
+    loadLocalData("affiliateContents");
 
-let hooks = JSON.parse(
-    localStorage.getItem("affiliateHooks")
-) || [];
+let hooks =
+    loadLocalData("affiliateHooks");
 
 
 // ========================================
 // ELEMENTS
 // ========================================
 
-const contentModal = document.getElementById("contentModal");
-const hookModal = document.getElementById("hookModal");
+const contentModal =
+    document.getElementById("contentModal");
 
-const contentList = document.getElementById("contentList");
-const contentList2 = document.getElementById("contentList2");
-const hookList = document.getElementById("hookList");
+const hookModal =
+    document.getElementById("hookModal");
 
-const totalContent = document.getElementById("totalContent");
-const totalHooks = document.getElementById("totalHooks");
-const postedContent = document.getElementById("postedContent");
+const contentList =
+    document.getElementById("contentList");
+
+const contentList2 =
+    document.getElementById("contentList2");
+
+const hookList =
+    document.getElementById("hookList");
+
+const totalContent =
+    document.getElementById("totalContent");
+
+const totalHooks =
+    document.getElementById("totalHooks");
+
+const postedContent =
+    document.getElementById("postedContent");
 
 
 // ========================================
-// SAVE DATA
+// LOCAL STORAGE
 // ========================================
 
-async function saveData() {
-    // Ambil data user yang sedang login saat ini
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-    
-    if (userError || !userData.user) {
-        console.error("User belum login:", userError);
-        return;
+function loadLocalData(key) {
+
+    try {
+
+        const saved =
+            JSON.parse(
+                localStorage.getItem(key)
+            );
+
+
+        return Array.isArray(saved)
+            ? saved
+            : [];
+
     }
 
-    const userId = userData.user.id;
+    catch (error) {
 
-    // 1. Simpan/Sinkronkan data contents ke Supabase
-    // (Asumsinya 'contents' adalah array objek yang berisi data, misal: { content_text: "..." })
-    if (contents && contents.length > 0) {
-        for (let item of contents) {
-            // Pastikan menyertakan user_id dan unique constraint (misal id jika ada)
-            await supabase.from("contents").upsert({
-                user_id: userId,
-                content_text: item.text || item // sesuaikan dengan struktur datamu
-            });
-        }
+        console.error(
+            `Gagal membaca ${key}:`,
+            error
+        );
+
+        return [];
+
     }
 
-    // 2. Simpan/Sinkronkan data hooks ke Supabase
-    if (hooks && hooks.length > 0) {
-        for (let item of hooks) {
-            await supabase.from("hooks").upsert({
-                user_id: userId,
-                hook_text: item.text || item // sesuaikan dengan struktur datamu
-            });
-        }
-    }
-
-    // Tetap simpan cadangan lokal juga boleh, biar kalau offline tetap aman
-    localStorage.setItem("affiliateContents", JSON.stringify(contents));
-    localStorage.setItem("affiliateHooks", JSON.stringify(hooks));
 }
 
-async function loatData() {
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-    if (userError || !userData.user) return;
 
-    const userId = userData.user.id;
+function saveData() {
 
-// Ambil data contents dari Supabase
-const { data: contentsData, error: contentsError } = await supabase
-     .from('contents')
-     .select('*')
-     .eq('user_id', userId);
+    localStorage.setItem(
+        "affiliateContents",
+        JSON.stringify(contents)
+    );
 
-     if (!contentsError && contentsData) {
-        contents = contentsData;
-        localStorage.setItem('affiliateContents', JSON.stringify (contents));
-     }
+    localStorage.setItem(
+        "affiliateHooks",
+        JSON.stringify(hooks)
+    );
 
-// Ambil data hooks dari Supabase
-const { data: hooksDatam, error: hooksError } = await supabase
-     .from('hooks')
-     .select('*')
-     .eq('user_id', userId);
-
-     if (!hooksError && hooksData) {
-        hooks = hooksData;
-        localStorage.setItem('affiliateHooks', JSON.stringify(hooks));
-     }
-     renderAll();
 }
 
+
 // ========================================
-// OPEN MODAL
+// MODAL
 // ========================================
 
 function openModal(modal) {
+
     modal.classList.add("active");
+
 }
 
-
-// ========================================
-// CLOSE MODAL
-// ========================================
 
 function closeModal(modal) {
+
     modal.classList.remove("active");
+
 }
 
 
 // ========================================
-// BUTTON - ADD CONTENT
+// ADD CONTENT BUTTON
 // ========================================
 
 document
     .getElementById("addContentBtn")
-    .addEventListener("click", () => {
-
-        openModal(contentModal);
-
-    });
+    .addEventListener(
+        "click",
+        () => {
+            openModal(contentModal);
+        }
+    );
 
 
 document
-    .getElementById("addContentBtn")
-    .addEventListener("click", () => {
-
-        openModal(contentModal);
-
-    });
+    .getElementById("addContentBtn2")
+    .addEventListener(
+        "click",
+        () => {
+            openModal(contentModal);
+        }
+    );
 
 
 // ========================================
-// BUTTON - ADD HOOK
+// ADD HOOK BUTTON
 // ========================================
 
 document
     .getElementById("addHookBtn")
-    .addEventListener("click", () => {
-
-        openModal(hookModal);
-
-    });
+    .addEventListener(
+        "click",
+        () => {
+            openModal(hookModal);
+        }
+    );
 
 
 // ========================================
@@ -166,132 +157,191 @@ document
     .querySelectorAll(".close-btn")
     .forEach(button => {
 
-        button.addEventListener("click", () => {
+        button.addEventListener(
+            "click",
+            () => {
 
-            const modalId = button.dataset.close;
+                const modalId =
+                    button.dataset.close;
 
-            document
-                .getElementById(modalId)
-                .classList.remove("active");
+                const modal =
+                    document.getElementById(
+                        modalId
+                    );
 
-        });
+
+                if (modal) {
+                    closeModal(modal);
+                }
+
+            }
+        );
 
     });
 
 
 // ========================================
-// CLOSE MODAL WHEN CLICK OUTSIDE
+// CLICK OUTSIDE MODAL
 // ========================================
 
-window.addEventListener("click", (event) => {
+window.addEventListener(
+    "click",
+    event => {
 
-    if (event.target === contentModal) {
-        closeModal(contentModal);
+        if (
+            event.target === contentModal
+        ) {
+
+            closeModal(contentModal);
+
+        }
+
+
+        if (
+            event.target === hookModal
+        ) {
+
+            closeModal(hookModal);
+
+        }
+
     }
-
-    if (event.target === hookModal) {
-        closeModal(hookModal);
-    }
-
-});
+);
 
 
 // ========================================
-// ADD CONTENT
+// SAVE CONTENT
 // ========================================
 
 document
     .getElementById("saveContentBtn")
-    .addEventListener("click", () => {
+    .addEventListener(
+        "click",
+        () => {
 
-        const product =
-            document
-                .getElementById("productInput")
-                .value
-                .trim();
-
-        const hook =
-            document
-                .getElementById("contentHookInput")
-                .value
-                .trim();
-
-        const category =
-            document
-                .getElementById("categoryInput")
-                .value;
+            const product =
+                document
+                    .getElementById(
+                        "productInput"
+                    )
+                    .value
+                    .trim();
 
 
-        // Ambil platform yang dicentang
+            const hook =
+                document
+                    .getElementById(
+                        "contentHookInput"
+                    )
+                    .value
+                    .trim();
 
-        const selectedPlatforms =
-            Array.from(
-                document.querySelectorAll(".platform:checked")
-            ).map(
-                checkbox => ({
-                    name: checkbox.value,
-                    posted: false
-                })
+
+            const category =
+                document
+                    .getElementById(
+                        "categoryInput"
+                    )
+                    .value;
+
+
+            const selectedPlatforms =
+                Array
+                    .from(
+                        document.querySelectorAll(
+                            ".platform:checked"
+                        )
+                    )
+                    .map(
+                        checkbox => ({
+                            name:
+                                checkbox.value,
+
+                            posted:
+                                false
+                        })
+                    );
+
+
+            // VALIDASI
+
+            if (!product) {
+
+                alert(
+                    "Nama produk belum diisi."
+                );
+
+                return;
+
+            }
+
+
+            if (!hook) {
+
+                alert(
+                    "Hook belum diisi."
+                );
+
+                return;
+
+            }
+
+
+            // CREATE CONTENT
+
+            const newContent = {
+
+                id:
+                    Date.now(),
+
+                product:
+                    product,
+
+                hook:
+                    hook,
+
+                category:
+                    category,
+
+                platforms:
+                    selectedPlatforms,
+
+                createdAt:
+                    new Date()
+                        .toLocaleDateString(
+                            "id-ID",
+                            {
+                                day:
+                                    "numeric",
+
+                                month:
+                                    "short",
+
+                                year:
+                                    "numeric"
+                            }
+                        )
+
+            };
+
+
+            contents.unshift(
+                newContent
             );
 
 
-        // Validasi
+            saveData();
 
-        if (!product) {
+            renderAll();
 
-            alert("Nama produk belum diisi.");
+            resetContentForm();
 
-            return;
-
-        }
-
-
-        if (!hook) {
-
-            alert("Hook belum diisi.");
-
-            return;
+            closeModal(
+                contentModal
+            );
 
         }
-
-
-        // Buat object content
-
-        const newContent = {
-
-            id: Date.now(),
-
-            product: product,
-
-            hook: hook,
-
-            category: category,
-
-            platforms: selectedPlatforms,
-
-            createdAt: new Date().toLocaleDateString(
-                "id-ID",
-                {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric"
-                }
-            )
-
-        };
-
-
-        contents.unshift(newContent);
-
-        saveData();
-
-        renderAll();
-
-        resetContentForm();
-
-        closeModal(contentModal);
-
-    });
+    );
 
 
 // ========================================
@@ -301,87 +351,126 @@ document
 function resetContentForm() {
 
     document
-        .getElementById("productInput")
+        .getElementById(
+            "productInput"
+        )
         .value = "";
 
+
     document
-        .getElementById("contentHookInput")
+        .getElementById(
+            "contentHookInput"
+        )
         .value = "";
 
+
     document
-        .getElementById("categoryInput")
-        .value = "Curiosity";
+        .getElementById(
+            "categoryInput"
+        )
+        .value =
+            "Curiosity";
 
 
     document
-        .querySelectorAll(".platform")
+        .querySelectorAll(
+            ".platform"
+        )
         .forEach(
-            checkbox => checkbox.checked = false
+            checkbox => {
+                checkbox.checked =
+                    false;
+            }
         );
 
 }
 
 
 // ========================================
-// ADD HOOK
+// SAVE HOOK
 // ========================================
 
 document
     .getElementById("saveHookBtn")
-    .addEventListener("click", () => {
+    .addEventListener(
+        "click",
+        () => {
 
-        const hookText =
-            document
-                .getElementById("hookInput")
-                .value
-                .trim();
-
-        const category =
-            document
-                .getElementById("hookCategoryInput")
-                .value;
+            const hookText =
+                document
+                    .getElementById(
+                        "hookInput"
+                    )
+                    .value
+                    .trim();
 
 
-        if (!hookText) {
+            const category =
+                document
+                    .getElementById(
+                        "hookCategoryInput"
+                    )
+                    .value;
 
-            alert("Hook belum diisi.");
 
-            return;
+            if (!hookText) {
+
+                alert(
+                    "Hook belum diisi."
+                );
+
+                return;
+
+            }
+
+
+            const newHook = {
+
+                id:
+                    Date.now(),
+
+                text:
+                    hookText,
+
+                category:
+                    category,
+
+                createdAt:
+                    new Date()
+                        .toLocaleDateString(
+                            "id-ID",
+                            {
+                                day:
+                                    "numeric",
+
+                                month:
+                                    "short",
+
+                                year:
+                                    "numeric"
+                            }
+                        )
+
+            };
+
+
+            hooks.unshift(
+                newHook
+            );
+
+
+            saveData();
+
+            renderAll();
+
+            resetHookForm();
+
+            closeModal(
+                hookModal
+            );
 
         }
-
-
-        const newHook = {
-
-            id: Date.now(),
-
-            text: hookText,
-
-            category: category,
-
-            createdAt: new Date().toLocaleDateString(
-                "id-ID",
-                {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric"
-                }
-            )
-
-        };
-
-
-        hooks.unshift(newHook);
-
-        saveData();
-
-        renderAll();
-
-        resetHookForm();
-
-        closeModal(hookModal);
-
-    });
+    );
 
 
 // ========================================
@@ -391,142 +480,244 @@ document
 function resetHookForm() {
 
     document
-        .getElementById("hookInput")
+        .getElementById(
+            "hookInput"
+        )
         .value = "";
 
+
     document
-        .getElementById("hookCategoryInput")
-        .value = "Curiosity";
+        .getElementById(
+            "hookCategoryInput"
+        )
+        .value =
+            "Curiosity";
 
 }
 
 
 // ========================================
-// RENDER CONTENT
+// RENDER CONTENTS
 // ========================================
 
-function renderContents(list = contents) {
+function renderContents(
+    list = contents
+) {
 
-    if (list.length === 0) {
+    if (
+        !Array.isArray(list) ||
+        list.length === 0
+    ) {
 
         const emptyHTML = `
+
             <div class="empty">
-                <h3>Belum ada konten</h3>
+
+                <h3>
+                    Belum ada konten
+                </h3>
+
                 <p>
                     Tambahkan konten pertamamu.
                 </p>
+
             </div>
+
         `;
 
-        contentList.innerHTML = emptyHTML;
 
-        contentList2.innerHTML = emptyHTML;
+        contentList.innerHTML =
+            emptyHTML;
+
+        contentList2.innerHTML =
+            emptyHTML;
 
         return;
 
     }
 
 
-    const html = list.map(content => {
+    const html =
+        list
+            .map(content => {
 
-        const platformsHTML =
-            content.platforms.length > 0
+                const platforms =
+                    Array.isArray(
+                        content.platforms
+                    )
+                        ? content.platforms
+                        : [];
 
-                ? content.platforms.map(platform => `
 
-                    <div class="platform-item">
+                const platformsHTML =
+                    platforms.length > 0
 
-                        <span>
-                            ${escapeHTML(platform.name)}
+                        ? platforms
+                            .map(platform => `
+
+                                <div
+                                    class="platform-item"
+                                >
+
+                                    <span>
+                                        ${escapeHTML(
+                                            platform.name
+                                        )}
+                                    </span>
+
+
+                                    <button
+                                        class="status ${
+                                            platform.posted
+                                                ? "posted"
+                                                : "not-posted"
+                                        }"
+
+                                        onclick="
+                                            togglePlatform(
+                                                ${content.id},
+                                                '${escapeAttribute(
+                                                    platform.name
+                                                )}'
+                                            )
+                                        "
+
+                                        type="button"
+                                    >
+
+                                        ${
+                                            platform.posted
+                                                ? "✓ Sudah"
+                                                : "Belum"
+                                        }
+
+                                    </button>
+
+                                </div>
+
+                            `)
+                            .join("")
+
+                        : `
+
+                            <p
+                                style="
+                                    color:#777;
+                                    font-size:13px;
+                                "
+                            >
+                                Belum ada platform.
+                            </p>
+
+                        `;
+
+
+                return `
+
+                    <article
+                        class="content-card"
+                    >
+
+                        <span
+                            class="category"
+                        >
+                            ${escapeHTML(
+                                content.category ||
+                                "Other"
+                            )}
                         </span>
 
-                        <button
-                            class="status ${
-                                platform.posted
-                                    ? "posted"
-                                    : "not-posted"
-                            }"
-                            onclick="togglePlatform(
-                                ${content.id},
-                                '${escapeAttribute(platform.name)}'
-                            )"
+
+                        <h3>
+                            ${escapeHTML(
+                                content.product ||
+                                ""
+                            )}
+                        </h3>
+
+
+                        <div class="hook">
+                            ${escapeHTML(
+                                content.hook ||
+                                ""
+                            )}
+                        </div>
+
+
+                        <small
+                            style="color:#888;"
+                        >
+                            Dibuat
+                            ${escapeHTML(
+                                content.createdAt ||
+                                "-"
+                            )}
+                        </small>
+
+
+                        <div
+                            class="platform-list"
                         >
 
-                            ${
-                                platform.posted
-                                    ? "✓ Sudah"
-                                    : "Belum"
-                            }
+                            ${platformsHTML}
 
-                        </button>
+                        </div>
 
-                    </div>
 
-                `).join("")
+                        <div
+                            class="card-actions"
+                        >
 
-                : `
-                    <p style="color:#777;font-size:13px;">
-                        Belum ada platform.
-                    </p>
+                            <button
+                                class="small-btn"
+
+                                onclick="
+                                    copyText(
+                                        '${escapeAttribute(
+                                            content.hook ||
+                                            ""
+                                        )}'
+                                    )
+                                "
+
+                                type="button"
+                            >
+                                Copy Hook
+                            </button>
+
+
+                            <button
+                                class="
+                                    small-btn
+                                    delete-btn
+                                "
+
+                                onclick="
+                                    deleteContent(
+                                        ${content.id}
+                                    )
+                                "
+
+                                type="button"
+                            >
+                                Hapus
+                            </button>
+
+                        </div>
+
+                    </article>
+
                 `;
 
-
-        return `
-
-            <article class="content-card">
-
-                <span class="category">
-                    ${escapeHTML(content.category)}
-                </span>
-
-                <h3>
-                    ${escapeHTML(content.product)}
-                </h3>
-
-                <div class="hook">
-                    ${escapeHTML(content.hook)}
-                </div>
-
-                <small style="color:#888;">
-                    Dibuat ${content.createdAt}
-                </small>
-
-                <div class="platform-list">
-
-                    ${platformsHTML}
-
-                </div>
-
-                <div class="card-actions">
-
-                    <button
-                        class="small-btn"
-                        onclick="copyText(
-                            '${escapeAttribute(content.hook)}'
-                        )"
-                    >
-                        Copy Hook
-                    </button>
-
-                    <button
-                        class="small-btn delete-btn"
-                        onclick="deleteContent(${content.id})"
-                    >
-                        Hapus
-                    </button>
-
-                </div>
-
-            </article>
-
-        `;
-
-    }).join("");
+            })
+            .join("");
 
 
-    contentList.innerHTML = html;
+    contentList.innerHTML =
+        html;
 
-    contentList2.innerHTML = html;
+    contentList2.innerHTML =
+        html;
 
 }
 
@@ -537,13 +728,18 @@ function renderContents(list = contents) {
 
 function renderHooks() {
 
-    if (hooks.length === 0) {
+    if (
+        !Array.isArray(hooks) ||
+        hooks.length === 0
+    ) {
 
         hookList.innerHTML = `
 
             <div class="empty">
 
-                <h3>Hook Bank masih kosong</h3>
+                <h3>
+                    Hook Bank masih kosong
+                </h3>
 
                 <p>
                     Simpan hook pertama kamu.
@@ -558,45 +754,89 @@ function renderHooks() {
     }
 
 
-    hookList.innerHTML = hooks.map(hook => `
+    hookList.innerHTML =
+        hooks
+            .map(hook => `
 
-        <article class="hook-card">
-
-            <span class="category">
-                ${escapeHTML(hook.category)}
-            </span>
-
-            <p class="hook-text">
-                ${escapeHTML(hook.text)}
-            </p>
-
-            <small style="color:#888;">
-                ${hook.createdAt}
-            </small>
-
-            <div class="card-actions">
-
-                <button
-                    class="small-btn"
-                    onclick="copyText(
-                        '${escapeAttribute(hook.text)}'
-                    )"
+                <article
+                    class="hook-card"
                 >
-                    Copy
-                </button>
 
-                <button
-                    class="small-btn delete-btn"
-                    onclick="deleteHook(${hook.id})"
-                >
-                    Hapus
-                </button>
+                    <span
+                        class="category"
+                    >
+                        ${escapeHTML(
+                            hook.category ||
+                            "Other"
+                        )}
+                    </span>
 
-            </div>
 
-        </article>
+                    <p
+                        class="hook-text"
+                    >
+                        ${escapeHTML(
+                            hook.text ||
+                            ""
+                        )}
+                    </p>
 
-    `).join("");
+
+                    <small
+                        style="color:#888;"
+                    >
+                        ${escapeHTML(
+                            hook.createdAt ||
+                            "-"
+                        )}
+                    </small>
+
+
+                    <div
+                        class="card-actions"
+                    >
+
+                        <button
+                            class="small-btn"
+
+                            onclick="
+                                copyText(
+                                    '${escapeAttribute(
+                                        hook.text ||
+                                        ""
+                                    )}'
+                                )
+                            "
+
+                            type="button"
+                        >
+                            Copy
+                        </button>
+
+
+                        <button
+                            class="
+                                small-btn
+                                delete-btn
+                            "
+
+                            onclick="
+                                deleteHook(
+                                    ${hook.id}
+                                )
+                            "
+
+                            type="button"
+                        >
+                            Hapus
+                        </button>
+
+                    </div>
+
+                </article>
+
+            `)
+            .join("");
 
 }
 
@@ -605,25 +845,46 @@ function renderHooks() {
 // TOGGLE PLATFORM
 // ========================================
 
-function togglePlatform(contentId, platformName) {
+function togglePlatform(
+    contentId,
+    platformName
+) {
 
     const content =
         contents.find(
-            item => item.id === contentId
+            item =>
+                item.id === contentId
         );
 
-    if (!content) return;
+
+    if (
+        !content ||
+        !Array.isArray(
+            content.platforms
+        )
+    ) {
+
+        return;
+
+    }
 
 
     const platform =
         content.platforms.find(
-            item => item.name === platformName
+            item =>
+                item.name ===
+                platformName
         );
 
-    if (!platform) return;
+
+    if (!platform) {
+        return;
+    }
 
 
-    platform.posted = !platform.posted;
+    platform.posted =
+        !platform.posted;
+
 
     saveData();
 
@@ -643,13 +904,18 @@ function deleteContent(id) {
             "Hapus konten ini?"
         );
 
-    if (!confirmed) return;
+
+    if (!confirmed) {
+        return;
+    }
 
 
     contents =
         contents.filter(
-            content => content.id !== id
+            content =>
+                content.id !== id
         );
+
 
     saveData();
 
@@ -669,13 +935,18 @@ function deleteHook(id) {
             "Hapus hook ini?"
         );
 
-    if (!confirmed) return;
+
+    if (!confirmed) {
+        return;
+    }
 
 
     hooks =
         hooks.filter(
-            hook => hook.id !== id
+            hook =>
+                hook.id !== id
         );
+
 
     saveData();
 
@@ -690,16 +961,35 @@ function deleteHook(id) {
 
 function copyText(text) {
 
+    if (
+        !navigator.clipboard
+    ) {
+
+        alert(
+            "Fitur copy tidak tersedia di browser ini."
+        );
+
+        return;
+
+    }
+
+
     navigator.clipboard
         .writeText(text)
+
         .then(() => {
 
-            alert("Hook berhasil disalin!");
+            alert(
+                "Hook berhasil disalin!"
+            );
 
         })
+
         .catch(() => {
 
-            alert("Gagal menyalin.");
+            alert(
+                "Gagal menyalin."
+            );
 
         });
 
@@ -711,53 +1001,86 @@ function copyText(text) {
 // ========================================
 
 document
-    .getElementById("searchInput")
-    .addEventListener("input", function () {
+    .getElementById(
+        "searchInput"
+    )
+    .addEventListener(
+        "input",
+        function () {
 
-        const keyword =
-            this.value
-                .toLowerCase()
-                .trim();
-
-
-        if (!keyword) {
-
-            renderContents();
-
-            return;
-
-        }
+            const keyword =
+                this.value
+                    .toLowerCase()
+                    .trim();
 
 
-        const filtered =
-            contents.filter(content => {
+            if (!keyword) {
 
-                return (
+                renderContents();
 
-                    content.product
-                        .toLowerCase()
-                        .includes(keyword)
+                return;
 
-                    ||
+            }
 
-                    content.hook
-                        .toLowerCase()
-                        .includes(keyword)
 
-                    ||
+            const filtered =
+                contents.filter(
+                    content => {
 
-                    content.category
-                        .toLowerCase()
-                        .includes(keyword)
+                        const product =
+                            String(
+                                content.product ||
+                                ""
+                            )
+                            .toLowerCase();
 
+
+                        const hook =
+                            String(
+                                content.hook ||
+                                ""
+                            )
+                            .toLowerCase();
+
+
+                        const category =
+                            String(
+                                content.category ||
+                                ""
+                            )
+                            .toLowerCase();
+
+
+                        return (
+
+                            product.includes(
+                                keyword
+                            )
+
+                            ||
+
+                            hook.includes(
+                                keyword
+                            )
+
+                            ||
+
+                            category.includes(
+                                keyword
+                            )
+
+                        );
+
+                    }
                 );
 
-            });
 
+            renderContents(
+                filtered
+            );
 
-        renderContents(filtered);
-
-    });
+        }
+    );
 
 
 // ========================================
@@ -768,39 +1091,63 @@ document
     .querySelectorAll(".tab")
     .forEach(tab => {
 
-        tab.addEventListener("click", () => {
+        tab.addEventListener(
+            "click",
+            () => {
 
-            const target =
-                tab.dataset.tab;
+                const target =
+                    tab.dataset.tab;
 
 
-            // Hilangkan active dari semua tab
+                document
+                    .querySelectorAll(
+                        ".tab"
+                    )
+                    .forEach(item => {
 
-            document
-                .querySelectorAll(".tab")
-                .forEach(item =>
-                    item.classList.remove("active")
+                        item.classList.remove(
+                            "active"
+                        );
+
+                    });
+
+
+                document
+                    .querySelectorAll(
+                        ".tab-content"
+                    )
+                    .forEach(section => {
+
+                        section.classList.remove(
+                            "active"
+                        );
+
+                    });
+
+
+                tab.classList.add(
+                    "active"
                 );
 
 
-            // Hilangkan active dari semua halaman
-
-            document
-                .querySelectorAll(".tab-content")
-                .forEach(section =>
-                    section.classList.remove("active")
-                );
+                const targetSection =
+                    document.getElementById(
+                        target
+                    );
 
 
-            // Aktifkan tab yang dipilih
+                if (
+                    targetSection
+                ) {
 
-            tab.classList.add("active");
+                    targetSection.classList.add(
+                        "active"
+                    );
 
-            document
-                .getElementById(target)
-                .classList.add("active");
+                }
 
-        });
+            }
+        );
 
     });
 
@@ -814,6 +1161,7 @@ function updateStats() {
     totalContent.textContent =
         contents.length;
 
+
     totalHooks.textContent =
         hooks.length;
 
@@ -821,19 +1169,36 @@ function updateStats() {
     let totalPosted = 0;
 
 
-    contents.forEach(content => {
+    contents.forEach(
+        content => {
 
-        content.platforms.forEach(platform => {
+            if (
+                !Array.isArray(
+                    content.platforms
+                )
+            ) {
 
-            if (platform.posted) {
-
-                totalPosted++;
+                return;
 
             }
 
-        });
 
-    });
+            content.platforms.forEach(
+                platform => {
+
+                    if (
+                        platform.posted
+                    ) {
+
+                        totalPosted++;
+
+                    }
+
+                }
+            );
+
+        }
+    );
 
 
     postedContent.textContent =
@@ -864,11 +1229,31 @@ function renderAll() {
 function escapeHTML(text) {
 
     return String(text)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+
+        .replaceAll(
+            "&",
+            "&amp;"
+        )
+
+        .replaceAll(
+            "<",
+            "&lt;"
+        )
+
+        .replaceAll(
+            ">",
+            "&gt;"
+        )
+
+        .replaceAll(
+            '"',
+            "&quot;"
+        )
+
+        .replaceAll(
+            "'",
+            "&#039;"
+        );
 
 }
 
@@ -876,51 +1261,32 @@ function escapeHTML(text) {
 function escapeAttribute(text) {
 
     return String(text)
-        .replaceAll("\\", "\\\\")
-        .replaceAll("'", "\\'")
-        .replaceAll("\n", "\\n")
-        .replaceAll("\r", "");
+
+        .replaceAll(
+            "\\",
+            "\\\\"
+        )
+
+        .replaceAll(
+            "'",
+            "\\'"
+        )
+
+        .replaceAll(
+            "\n",
+            "\\n"
+        )
+
+        .replaceAll(
+            "\r",
+            ""
+        );
 
 }
 
-// == LOAD DATA DARI SUPABASE ==
-async function loadData() {
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-    if (userError || !userData.user) return;
 
-    const userId = userData.user.id;
-
-    // Ambil data contents
-    const { data: contentsData, error: contentsError } = await supabase
-        .from('contents')
-        .select('*')
-        .eq('user_id', userId);
-
-    if (!contentsError && Array.isArray(contentsData) && contentsData.length > 0) {
-        contents = contentsData;
-        localStorage.setItem('affiliateContents', JSON.stringify(contents));
-    }
-
-    // Ambil data hooks
-    const { data: hooksData, error: hooksError } = await supabase
-        .from('hooks')
-        .select('*')
-        .eq('user_id', userId);
-
-    if (!hooksError && Array.isArray(hooksData) && hooksData.length > 0) {
-        hooks = hooksData;
-        localStorage.setItem('affiliateHooks', JSON.stringify(hooks));
-    }
-
-    renderAll();
-}
-
-// ==========================================
+// ========================================
 // START APP
-// ==========================================
-async function initApp() {
-    await loadData();
-    if (typeof renderAll === 'function') {
-}
-}
-initApp();
+// ========================================
+
+renderAll();
