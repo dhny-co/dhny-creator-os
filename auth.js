@@ -8,7 +8,7 @@
 // ========================================
 
 const SUPABASE_URL =
-    "https://npeutglwjpuwwzjaikn.supabase.co";
+    "https://npeutglwjpucwwzjaikn.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_wdSkArJGYB_0CuLoJfN5fw_JgtAfNpp";
